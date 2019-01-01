@@ -106,13 +106,16 @@ public class LockServiceImpl {
             System.out.println(threadName + "拿到了lock" + lockNodeName + "，do -----");
             zooKeeper.delete(lockNode, -1);
             System.out.println(threadName + "执行完毕，解锁" + lockNodeName + "------");
-            try {
-                zooKeeper.delete(path, -1);
-                System.out.println(threadName + "尝试删除该key节点成功，path" + path);
-            } catch (KeeperException k) {
-                System.out.println(threadName + "尝试删除该key节点，失败：" + k.getMessage());
-            } catch (Exception e) {
-                System.out.println(threadName + "尝试删除该key节点，失败：" + e.getMessage());
+            String lastNodeName = subNodes.get(subNodes.size() - 1);
+            if (lockNodeName.equals(lastNodeName)) {
+                try {
+                    zooKeeper.delete(path, -1);
+                    System.out.println(threadName + "尝试删除该key目录成功，path" + path);
+                } catch (KeeperException k) {
+                    System.out.println(threadName + "尝试删除该key目录，失败：" + k.getMessage());
+                } catch (Exception e) {
+                    System.out.println(threadName + "尝试删除该key目录，失败：" + e.getMessage());
+                }
             }
         } catch (Exception e) {
             System.out.println(threadName + "lock error" + e.getMessage());
@@ -122,7 +125,7 @@ public class LockServiceImpl {
     public static void main(String[] args) throws InterruptedException {
         ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 10, 0, TimeUnit.SECONDS, new
             LinkedBlockingQueue<Runnable>());
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 1000; i++) {
             String name = new StringBuffer("ThreadName[").append(i).append("]").toString();
             executor.execute(() -> {
                 LockServiceImpl.lock(name, "firstLock");
