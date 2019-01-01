@@ -9,6 +9,7 @@ import java.util.concurrent.*;
 
 /**
  * Created by fengyiming on 2018/12/24.
+ * 基于zookeeper的代码
  */
 public class LockServiceImpl {
 
@@ -96,7 +97,7 @@ public class LockServiceImpl {
                     }
                 });
                 if (min1Stat == null) {
-                    System.out.println(threadName + "节点不存在，无需等待，当前节点：" + lockNodeName + "前一节点：" + min1NodeName);
+                    System.out.println(threadName + "节点不存在，无需等待，当前节点：" + lockNodeName + "，前一节点：" + min1NodeName);
                 } else {
                     System.out.println(threadName + "------wait-------");
                     countDownLatch.await();
@@ -108,6 +109,8 @@ public class LockServiceImpl {
             try {
                 zooKeeper.delete(path, -1);
                 System.out.println(threadName + "尝试删除该key节点成功，path" + path);
+            } catch (KeeperException k) {
+                System.out.println(threadName + "尝试删除该key节点，失败：" + k.getMessage());
             } catch (Exception e) {
                 System.out.println(threadName + "尝试删除该key节点，失败：" + e.getMessage());
             }
